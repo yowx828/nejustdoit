@@ -5,15 +5,15 @@ import Dashboard from '../components/Dashboard/Dashboard';
 import AuthModal from '../components/Auth/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { motion } from 'framer-motion';
+
 interface IndexProps {
   activeTab?: 'rewards' | 'spin' | 'shop' | 'afk';
 }
+
 const Index = ({
   activeTab: initialTab
 }: IndexProps) => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'rewards' | 'spin' | 'shop' | 'afk'>(initialTab || 'rewards');
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -67,33 +67,81 @@ const Index = ({
       setActiveTab(initialTab);
     }
   }, [user, initialTab]);
+
   const handleGetStarted = () => {
     setAuthType('signup');
     setShowAuthModal(true);
   };
+
   const handleLogin = () => {
     setAuthType('login');
     setShowAuthModal(true);
   };
+
   const closeAuthModal = () => {
     setShowAuthModal(false);
   };
-  return <div className="min-h-screen bg-spdm-black text-white overflow-hidden" ref={containerRef} onClick={createBubbles}>
+
+  // Payment method data
+  const paymentMethods = [
+    {
+      name: "PayPal",
+      icon: "https://images.pexels.com/photos/50987/money-card-business-credit-card-50987.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Fast and secure international payments",
+      link: "#"
+    },
+    {
+      name: "Zelle",
+      icon: "https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Instant bank transfers (US only)",
+      link: "#"
+    },
+    {
+      name: "Cash App",
+      icon: "https://images.pexels.com/photos/4386366/pexels-photo-4386366.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Quick and easy mobile payments",
+      link: "#"
+    },
+    {
+      name: "BBVA México",
+      icon: "https://images.pexels.com/photos/4386367/pexels-photo-4386367.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Direct bank transfers in Mexico",
+      link: "#"
+    },
+    {
+      name: "Oxxo",
+      icon: "https://images.pexels.com/photos/4386368/pexels-photo-4386368.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Cash payments at any Oxxo store",
+      link: "#"
+    },
+    {
+      name: "Free Fire Account",
+      icon: "https://images.pexels.com/photos/4386369/pexels-photo-4386369.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      description: "Trade with Free Fire accounts",
+      link: "#"
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-spdm-black text-white overflow-hidden" ref={containerRef} onClick={createBubbles}>
       <Header onLoginClick={handleLogin} onSignupClick={handleGetStarted} />
       
       {/* Gradient overlay for visual effect */}
       <div className="fixed inset-0 bg-gradient-to-b from-spdm-green/5 to-transparent pointer-events-none"></div>
       
-      {user ? <div className="pt-24 pb-20">
+      {user ? (
+        <div className="pt-24 pb-20">
           <Dashboard activeTab={activeTab} />
-        </div> : <div className="relative">
+        </div>
+      ) : (
+        <div className="relative">
           {/* Hero Section */}
           <div className="min-h-screen flex items-center justify-center px-4 relative">
             <div className="absolute inset-0 overflow-hidden">
               <div className="absolute w-96 h-96 bg-spdm-green/20 rounded-full blur-3xl -top-20 -left-20 animate-float opacity-30"></div>
               <div className="absolute w-64 h-64 bg-spdm-green/20 rounded-full blur-3xl bottom-20 right-10 animate-float opacity-20" style={{
-            animationDelay: '1s'
-          }}></div>
+                animationDelay: '1s'
+              }}></div>
             </div>
             
             <div className="max-w-4xl w-full text-center relative z-10">
@@ -108,18 +156,18 @@ const Index = ({
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
                   <motion.button onClick={handleGetStarted} className="px-8 py-4 rounded-full bg-spdm-green hover:bg-spdm-darkGreen text-black font-semibold text-lg transition-all hover:shadow-lg hover:shadow-spdm-green/20" whileTap={{
-                scale: 0.95
-              }} whileHover={{
-                scale: 1.05
-              }}>
+                    scale: 0.95
+                  }} whileHover={{
+                    scale: 1.05
+                  }}>
                     Get Started
                   </motion.button>
                   
                   <motion.button onClick={() => window.open('https://discord.gg/aJaKPWr42x', '_blank')} className="px-8 py-4 rounded-full bg-transparent hover:bg-spdm-green/10 border-2 border-spdm-green text-spdm-green font-semibold text-lg transition-all" whileTap={{
-                scale: 0.95
-              }} whileHover={{
-                scale: 1.05
-              }}>
+                    scale: 0.95
+                  }} whileHover={{
+                    scale: 1.05
+                  }}>
                     Join Discord
                   </motion.button>
                 </div>
@@ -203,26 +251,108 @@ const Index = ({
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <motion.button onClick={handleGetStarted} className="px-8 py-4 rounded-full bg-spdm-green hover:bg-spdm-darkGreen text-black font-semibold text-lg transition-all hover:shadow-lg hover:shadow-spdm-green/20" whileTap={{
-              scale: 0.95
-            }} whileHover={{
-              scale: 1.05
-            }}>
+                  scale: 0.95
+                }} whileHover={{
+                  scale: 1.05
+                }}>
                   Sign Up Now
                 </motion.button>
                 <motion.button onClick={() => window.open('https://chat.whatsapp.com/KteLnsPOMEKIJw3I1phViP', '_blank')} className="px-8 py-4 rounded-full bg-transparent hover:bg-spdm-green/10 border-2 border-spdm-green text-spdm-green font-semibold text-lg transition-all" whileTap={{
-              scale: 0.95
-            }} whileHover={{
-              scale: 1.05
-            }}>
+                  scale: 0.95
+                }} whileHover={{
+                  scale: 1.05
+                }}>
                   Join WhatsApp
                 </motion.button>
               </div>
             </div>
           </div>
-        </div>}
+
+          {/* Payment Methods Section */}
+          <div className="py-20 px-4 bg-gradient-to-t from-black to-spdm-dark">
+            <div className="max-w-6xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-12"
+              >
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-spdm-green glow-text">
+                  Payment Methods
+                </h2>
+                <p className="text-xl text-gray-300">
+                  Multiple secure payment options available
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {paymentMethods.map((method, index) => (
+                  <motion.div
+                    key={method.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.03 }}
+                    className="bg-spdm-gray rounded-lg overflow-hidden border border-spdm-green/20 hover:border-spdm-green/50 transition-all"
+                  >
+                    <div className="h-48 overflow-hidden">
+                      <img 
+                        src={method.icon} 
+                        alt={method.name}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      />
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold text-spdm-green mb-2">{method.name}</h3>
+                      <p className="text-gray-400 mb-4">{method.description}</p>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full px-4 py-2 bg-spdm-green hover:bg-spdm-darkGreen text-black font-medium rounded-md transition-colors"
+                        onClick={() => window.open(method.link, '_blank')}
+                      >
+                        Pay with {method.name}
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="mt-12 text-center"
+              >
+                <p className="text-gray-400">
+                  Need help with payment? Contact our support team
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.open('https://discord.gg/aJaKPWr42x', '_blank')}
+                  className="mt-4 px-8 py-3 bg-transparent hover:bg-spdm-green/10 border-2 border-spdm-green text-spdm-green font-semibold rounded-full transition-all"
+                >
+                  Contact Support
+                </motion.button>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      )}
       
-      {showAuthModal && <AuthModal isOpen={showAuthModal} onClose={closeAuthModal} type={authType} />}
-    </div>;
+      {showAuthModal && (
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={closeAuthModal} 
+          type={authType} 
+        />
+      )}
+    </div>
+  );
 };
 
 // Feature card component
@@ -232,12 +362,15 @@ const FeatureCard = ({
 }: {
   title: string;
   description: string;
-}) => <motion.div className="bg-spdm-dark bg-opacity-80 backdrop-blur-sm p-6 rounded-lg border border-spdm-green/20 hover:border-spdm-green/50 transition-all" whileHover={{
-  scale: 1.03
-}} whileTap={{
-  scale: 0.98
-}}>
+}) => (
+  <motion.div
+    className="bg-spdm-dark bg-opacity-80 backdrop-blur-sm p-6 rounded-lg border border-spdm-green/20 hover:border-spdm-green/50 transition-all"
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.98 }}
+  >
     <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
     <p className="text-gray-400">{description}</p>
-  </motion.div>;
+  </motion.div>
+);
+
 export default Index;
