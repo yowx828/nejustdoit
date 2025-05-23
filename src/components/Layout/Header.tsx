@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, User, Users, ChevronDown, LogOut, Settings, Shield } from 'lucide-react';
 import SideMenu from './Menu';
@@ -6,6 +5,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
+import { SettingsDialog } from '@/components/Settings/SettingsDialog';
 import { 
   Tooltip,
   TooltipContent,
@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Online user type definition
 interface OnlineUser {
   id: string;
   username: string;
@@ -37,6 +36,7 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [showOnlineUsers, setShowOnlineUsers] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const isMobile = useIsMobile();
   const { user, logout, updatePresence } = useAuth();
 
@@ -44,11 +44,9 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
     setMenuOpen(!menuOpen);
   };
 
-  // Subscribe to online users
   useEffect(() => {
     const fetchOnlineUsers = async () => {
       try {
-        // Using raw SQL query because active_users isn't in the TypeScript types yet
         const { data: activeUsers, error: activeUsersError } = await supabase.rpc('get_active_user_ids');
         
         if (activeUsersError) throw activeUsersError;
@@ -79,10 +77,8 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
       }
     };
 
-    // Initial fetch
     fetchOnlineUsers();
-
-    // Set up realtime subscription using a channel with a simpler approach
+    
     const channel = supabase
       .channel('presence-updates')
       .on('broadcast', { event: 'presence-update' }, () => {
@@ -96,7 +92,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
   }, []);
 
   useEffect(() => {
-    // Update presence when component mounts
     if (user) {
       updatePresence();
     }
@@ -111,7 +106,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
       </div>
       
       <div className="flex items-center gap-3 sm:gap-4">
-        {/* Login/Signup buttons for non-authenticated users */}
         {!user && onLoginClick && onSignupClick && (
           <div className="hidden sm:flex items-center gap-3">
             <motion.button
@@ -133,7 +127,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           </div>
         )}
 
-        {/* User wallet display showing coin balance when logged in */}
         {user && (
           <motion.div 
             className="hidden sm:flex items-center bg-spdm-gray/60 border border-spdm-green/30 rounded-full px-3 py-1.5"
@@ -150,7 +143,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           </motion.div>
         )}
         
-        {/* Online users indicator */}
         {user && (
           <Tooltip>
             <TooltipTrigger asChild>
@@ -176,7 +168,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           </Tooltip>
         )}
         
-        {/* Online users dropdown */}
         {showOnlineUsers && (
           <div className="absolute top-16 right-20 bg-spdm-dark border border-spdm-green/30 rounded-lg shadow-lg p-3 min-w-[200px] max-h-[300px] overflow-y-auto animate-fade-in z-50">
             <h3 className="text-sm font-medium text-spdm-green mb-2">Online Users ({onlineUsers.length})</h3>
@@ -195,7 +186,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           </div>
         )}
         
-        {/* User profile dropdown */}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -213,11 +203,10 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
             <DropdownMenuContent className="bg-spdm-dark border border-spdm-green/30 text-white min-w-[180px] animate-fade-in">
               <DropdownMenuLabel className="text-gray-400">My Account</DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-spdm-green/20" />
-              <DropdownMenuItem className="hover:bg-spdm-green/20 focus:bg-spdm-green/20 active:scale-98 transition-all cursor-pointer">
-                <User size={16} className="mr-2 text-spdm-green" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="hover:bg-spdm-green/20 focus:bg-spdm-green/20 active:scale-98 transition-all cursor-pointer">
+              <DropdownMenuItem 
+                className="hover:bg-spdm-green/20 focus:bg-spdm-green/20 active:scale-98 transition-all cursor-pointer"
+                onClick={() => setShowSettings(true)}
+              >
                 <Settings size={16} className="mr-2 text-spdm-green" />
                 <span>Settings</span>
               </DropdownMenuItem>
@@ -225,7 +214,10 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
               {user.isAdmin && (
                 <>
                   <DropdownMenuSeparator className="bg-spdm-green/20" />
-                  <DropdownMenuItem className="hover:bg-spdm-green/20 focus:bg-spdm-green/20 active:scale-98 transition-all cursor-pointer">
+                  <DropdownMenuItem 
+                    className="hover:bg-spdm-green/20 focus:bg-spdm-green/20 active:scale-98 transition-all cursor-pointer"
+                    onClick={() => navigate('/admin')}
+                  >
                     <Shield size={16} className="mr-2 text-spdm-green" />
                     <span>Admin Panel</span>
                   </DropdownMenuItem>
@@ -259,6 +251,11 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
         onClose={() => setMenuOpen(false)} 
         onLoginClick={onLoginClick} 
         onSignupClick={onSignupClick}
+      />
+
+      <SettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
       />
     </header>
   );
