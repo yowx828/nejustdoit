@@ -208,7 +208,7 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
                       whileTap="tap"
                     >
                       <Shield className="mr-3 text-spdm-green" size={20} />
-                      <span className="text-spdm-green group-hover:glow-text transition-all duration-200">Admin Panel</span>
+                      <span className="text-spdm-green group-hover:glow-text transition-all duration-200">Owner Panel</span>
                     </motion.button>
                   )}
                 </>
