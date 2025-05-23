@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, LogIn, UserPlus, Gift, ShoppingCart, RotateCw, Timer, Shield, Youtube } from 'lucide-react';
@@ -61,30 +60,6 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
     navigate(path);
   };
 
-  // Animation variants
-  const menuVariants = {
-    hidden: { x: '100%' },
-    visible: { x: 0, transition: { type: 'spring', damping: 25, stiffness: 300 } }
-  };
-  
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 0.3 } }
-  };
-  
-  const buttonVariants = {
-    initial: { opacity: 0, y: 20 },
-    animate: (i: number) => ({ 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        delay: i * 0.1,
-        duration: 0.3 
-      }
-    }),
-    tap: { scale: 0.97 }
-  };
-
   return (
     <>
       <AnimatePresence>
@@ -92,10 +67,9 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
           <motion.div 
             className="fixed inset-0 bg-black bg-opacity-80 backdrop-blur-menu z-50"
             onClick={onClose}
-            variants={backdropVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
           />
         )}
       </AnimatePresence>
@@ -104,10 +78,10 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
         {isOpen && (
           <motion.div 
             className="fixed top-0 right-0 w-full md:w-80 h-full bg-spdm-dark border-l border-spdm-green/30 z-50 p-6 flex flex-col"
-            variants={menuVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold text-spdm-green glow-text">Menu</h2>
@@ -204,7 +178,7 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
                     <span className="text-spdm-green group-hover:glow-text transition-all duration-200">AFK Farm</span>
                   </motion.button>
                   
-                  {user.isAdmin && (
+                  {user.isOwner && (
                     <motion.button 
                       onClick={() => handleNavigate('/admin')}
                       className="flex items-center p-3 rounded-md hover:bg-spdm-gray transition-all duration-200 border border-spdm-green/50 hover:border-spdm-green group"
@@ -223,7 +197,6 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
             </div>
 
             <div className="mt-auto space-y-4">
-              {/* Social media links with improved styling */}
               <motion.button
                 onClick={() => openExternalLink('https://chat.whatsapp.com/KteLnsPOMEKIJw3I1phViP')}
                 className="w-full p-3 rounded-md bg-green-600 hover:bg-green-700 text-white font-medium flex justify-center items-center gap-3 transition-all"
