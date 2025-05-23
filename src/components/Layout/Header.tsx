@@ -57,7 +57,7 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           const { data: profilesData, error: profilesError } = await supabase
             .from('profiles')
             .select('id, username')
-            .in('id', activeUsers);
+            .in('user_id', activeUsers);
           
           if (profilesError) throw profilesError;
 
