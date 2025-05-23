@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { RefreshCw, Copy, CheckCircle, XCircle } from 'lucide-react';
+import { RefreshCw, Copy, CheckCircle, XCircle, AlertTriangle, Trash2 } from 'lucide-react';
 
 import PromoCodeManager from "@/components/Admin/PromoCodeManager";
 
@@ -43,6 +42,8 @@ const Admin = () => {
   const [updatingBalance, setUpdatingBalance] = useState(false);
   const [updateUserId, setUpdateUserId] = useState('');
   const [updateAmount, setUpdateAmount] = useState('');
+  const [emergencyMessage, setEmergencyMessage] = useState('');
+  const [currentEmergency, setCurrentEmergency] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user?.isAdmin && !user?.isOwner) {
@@ -55,6 +56,7 @@ const Admin = () => {
     }
     fetchUsers();
     fetchStats();
+    fetchCurrentEmergency();
   }, [user]);
 
   const fetchUsers = async () => {
@@ -82,6 +84,71 @@ const Admin = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCurrentEmergency = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('emergency_messages')
+        .select('*')
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      
+      if (data) {
+        setCurrentEmergency(data.message);
+      }
+    } catch (error: any) {
+      console.error('Error fetching emergency message:', error);
+    }
+  };
+
+  const setEmergencyAlert = async () => {
+    try {
+      const { error } = await supabase
+        .from('emergency_messages')
+        .upsert({ id: 1, message: emergencyMessage });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Emergency message has been set.",
+      });
+
+      setCurrentEmergency(emergencyMessage);
+      setEmergencyMessage('');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to set emergency message.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removeEmergencyAlert = async () => {
+    try {
+      const { error } = await supabase
+        .from('emergency_messages')
+        .delete()
+        .eq('id', 1);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Emergency message has been removed.",
+      });
+
+      setCurrentEmergency(null);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to remove emergency message.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -123,11 +190,24 @@ const Admin = () => {
     setRefreshing(false);
   };
 
-  const updateUserRole = async (userId: string, isAdmin: boolean) => {
+  const updateUserRole = async (userId: string, isAdmin: boolean, isOwner: boolean) => {
     try {
+      // Only allow owner to update roles
+      if (!user?.isOwner) {
+        toast({
+          title: "Unauthorized",
+          description: "Only owners can modify user roles.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({ is_admin: !isAdmin })
+        .update({ 
+          is_admin: !isAdmin,
+          is_owner: isOwner // Keep owner status unchanged
+        })
         .eq('id', userId);
 
       if (error) throw error;
@@ -141,6 +221,39 @@ const Admin = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to update user role.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateUserOwner = async (userId: string, isOwner: boolean) => {
+    try {
+      // Only allow owner to update owner status
+      if (!user?.isOwner) {
+        toast({
+          title: "Unauthorized",
+          description: "Only owners can modify owner status.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_owner: !isOwner })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `User owner status updated successfully.`,
+      });
+      fetchUsers();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update owner status.",
         variant: "destructive",
       });
     }
@@ -248,42 +361,57 @@ const Admin = () => {
                   <TableHead>Username</TableHead>
                   <TableHead>Email</TableHead>
                   <TableHead>Admin</TableHead>
+                  {user?.isOwner && <TableHead>Owner</TableHead>}
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">Loading users...</TableCell>
+                    <TableCell colSpan={6} className="text-center py-4">Loading users...</TableCell>
                   </TableRow>
                 ) : currentUsers.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-4">No users found.</TableCell>
+                    <TableCell colSpan={6} className="text-center py-4">No users found.</TableCell>
                   </TableRow>
                 ) : (
-                  currentUsers.map((user) => (
-                    <TableRow key={user.id}>
+                  currentUsers.map((userData) => (
+                    <TableRow key={userData.id}>
                       <TableCell className="font-medium">
                         <div className="flex items-center">
-                          <Button variant="ghost" size="sm" onClick={() => copyToClipboard(user.id)} className="mr-2 h-auto w-auto p-1">
+                          <Button variant="ghost" size="sm" onClick={() => copyToClipboard(userData.id)} className="mr-2 h-auto w-auto p-1">
                             <Copy className="h-3 w-3" />
                           </Button>
-                          {user.id.substring(0, 8)}...
+                          {userData.id.substring(0, 8)}...
                         </div>
                       </TableCell>
-                      <TableCell>{user.username}</TableCell>
-                      <TableCell>{user.id}</TableCell>
+                      <TableCell>{userData.username}</TableCell>
+                      <TableCell>{userData.id}</TableCell>
                       <TableCell>
                         <Button 
                           variant="outline" 
                           size="sm"
-                          className={user.is_admin ? "bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30" : "bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20"}
-                          onClick={() => updateUserRole(user.id, user.is_admin)}
+                          className={userData.is_admin ? "bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30" : "bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20"}
+                          onClick={() => updateUserRole(userData.id, userData.is_admin, userData.is_owner)}
+                          disabled={!user.isOwner || userData.is_owner} // Can't modify owner's admin status
                         >
-                          {user.is_admin ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
-                          {user.is_admin ? 'Admin' : 'User'}
+                          {userData.is_admin ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+                          {userData.is_admin ? 'Admin' : 'User'}
                         </Button>
                       </TableCell>
+                      {user?.isOwner && (
+                        <TableCell>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className={userData.is_owner ? "bg-purple-500/20 text-purple-500 border-purple-500/30 hover:bg-purple-500/30" : "bg-gray-500/10 text-gray-400 border-gray-500/30 hover:bg-gray-500/20"}
+                            onClick={() => updateUserOwner(userData.id, userData.is_owner)}
+                          >
+                            {userData.is_owner ? <CheckCircle className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2" />}
+                            {userData.is_owner ? 'Owner' : 'Regular'}
+                          </Button>
+                        </TableCell>
+                      )}
                       <TableCell>
                         {/* Add any additional actions here */}
                       </TableCell>
@@ -323,6 +451,49 @@ const Admin = () => {
           </div>
         </div>
       </div>
+
+      {/* Emergency Alert Section (Owner Only) */}
+      {user?.isOwner && (
+        <div className="mb-8 bg-spdm-dark p-6 rounded-lg border border-spdm-green/20">
+          <h2 className="text-xl font-semibold text-spdm-green mb-4">Emergency Alert</h2>
+          <div className="space-y-4">
+            {currentEmergency && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+                    <span className="text-red-500 font-medium">Current Emergency Message:</span>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-red-500/30 text-red-500 hover:bg-red-500/10"
+                    onClick={removeEmergencyAlert}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="mt-2 text-gray-300">{currentEmergency}</p>
+              </div>
+            )}
+            <div className="flex gap-4">
+              <Input
+                placeholder="Enter emergency message..."
+                className="bg-spdm-gray border-spdm-green/20"
+                value={emergencyMessage}
+                onChange={(e) => setEmergencyMessage(e.target.value)}
+              />
+              <Button
+                onClick={setEmergencyAlert}
+                className="bg-red-500 hover:bg-red-600 text-white"
+                disabled={!emergencyMessage}
+              >
+                Set Emergency
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Promo Code Manager Section */}
       <div className="mb-8">
