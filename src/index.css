@@ -93,11 +93,6 @@
     @apply bg-spdm-black text-spdm-green;
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
-    background-image: url('https://i.pinimg.com/originals/d4/60/eb/d460eb4ac63b9a2fbad07a83bc3ac7f6.gif');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -130,6 +125,27 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
+  }
+
+  .lightning-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background: linear-gradient(45deg, rgba(12, 255, 0, 0) 70%, rgba(12, 255, 0, 0.1) 100%);
+    animation: lightning 2s infinite;
+  }
+
+  @keyframes lightning {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   .dashboard-bg {
