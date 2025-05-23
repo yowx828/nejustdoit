@@ -18,6 +18,16 @@ const Index = ({
   const [activeTab, setActiveTab] = useState<'rewards' | 'spin' | 'shop' | 'afk'>(initialTab || 'rewards');
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authType, setAuthType] = useState<'login' | 'signup'>('signup');
+  const [showLightning, setShowLightning] = useState(false);
+
+  // Effect for lightning animation
+  useEffect(() => {
+    if (!user) {
+      setShowLightning(true);
+      const timer = setTimeout(() => setShowLightning(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   // Reference to create bubbles
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,11 +134,21 @@ const Index = ({
     <div className="min-h-screen bg-spdm-black text-white overflow-hidden" ref={containerRef} onClick={createBubbles}>
       <Header onLoginClick={handleLogin} onSignupClick={handleGetStarted} />
       
+      {/* Lightning animation */}
+      {showLightning && (
+        <motion.div
+          className="lightning-animation"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 0.5, 1, 0] }}
+          transition={{ duration: 2, times: [0, 0.2, 0.4, 0.6, 1] }}
+        />
+      )}
+      
       {/* Gradient overlay for visual effect */}
       <div className="fixed inset-0 bg-gradient-to-b from-spdm-green/5 to-transparent pointer-events-none"></div>
       
       {user ? (
-        <div className="pt-24 pb-20">
+        <div className="pt-24 pb-20 dashboard-bg">
           <Dashboard activeTab={activeTab} />
         </div>
       ) : (
