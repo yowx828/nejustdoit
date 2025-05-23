@@ -86,41 +86,38 @@ const Index = ({
   const paymentMethods = [
     {
       name: "PayPal",
-      icon: "https://images.pexels.com/photos/50987/money-card-business-credit-card-50987.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Fast and secure international payments",
-      link: "#"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/PayPal.svg/1200px-PayPal.svg.png",
+      description: "Fast and secure international payments"
     },
     {
       name: "Zelle",
-      icon: "https://images.pexels.com/photos/4386431/pexels-photo-4386431.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Instant bank transfers (US only)",
-      link: "#"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Zelle_logo.svg/2560px-Zelle_logo.svg.png",
+      description: "Instant bank transfers (US only)"
     },
     {
       name: "Cash App",
-      icon: "https://images.pexels.com/photos/4386366/pexels-photo-4386366.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Quick and easy mobile payments",
-      link: "#"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Square_Cash_app_logo.svg/1200px-Square_Cash_app_logo.svg.png",
+      description: "Quick and easy mobile payments"
     },
     {
       name: "BBVA México",
-      icon: "https://images.pexels.com/photos/4386367/pexels-photo-4386367.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Direct bank transfers in Mexico",
-      link: "#"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/BBVA_Mexico_logo.svg/2560px-BBVA_Mexico_logo.svg.png",
+      description: "Direct bank transfers in Mexico"
     },
     {
       name: "Oxxo",
-      icon: "https://images.pexels.com/photos/4386368/pexels-photo-4386368.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Cash payments at any Oxxo store",
-      link: "#"
+      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Oxxo_Logo.svg/2560px-Oxxo_Logo.svg.png",
+      description: "Cash payments at any Oxxo store"
     },
     {
       name: "Free Fire Account",
-      icon: "https://images.pexels.com/photos/4386369/pexels-photo-4386369.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-      description: "Trade with Free Fire accounts",
-      link: "#"
+      description: "Trade with Free Fire accounts"
     }
   ];
+
+  const handlePaymentClick = () => {
+    window.open('https://t.me/yowxios', '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-spdm-black text-white overflow-hidden" ref={containerRef} onClick={createBubbles}>
@@ -239,6 +236,80 @@ const Index = ({
               </div>
             </div>
           </div>
+
+          {/* Payment Methods Section */}
+          <div className="py-20 px-4 bg-gradient-to-t from-black to-spdm-dark">
+            <div className="max-w-6xl mx-auto">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-12"
+              >
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-spdm-green glow-text">
+                  Payment Methods
+                </h2>
+                <p className="text-xl text-gray-300">
+                  Multiple secure payment options available
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+                {paymentMethods.map((method, index) => (
+                  <motion.div
+                    key={method.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                    onClick={handlePaymentClick}
+                    className="bg-spdm-gray rounded-lg p-4 border border-spdm-green/20 hover:border-spdm-green/50 transition-all cursor-pointer"
+                  >
+                    <div className="flex flex-col items-center gap-4">
+                      {method.logo ? (
+                        <div className="h-12 flex items-center justify-center">
+                          <img 
+                            src={method.logo} 
+                            alt={method.name}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-12 flex items-center justify-center text-lg font-bold text-spdm-green">
+                          {method.name}
+                        </div>
+                      )}
+                      <p className="text-sm text-gray-400 text-center">
+                        {method.description}
+                      </p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="mt-12 text-center"
+              >
+                <p className="text-gray-400">
+                  Need help with payment? Contact our support team
+                </p>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.open('https://discord.gg/aJaKPWr42x', '_blank')}
+                  className="mt-4 px-8 py-3 bg-transparent hover:bg-spdm-green/10 border-2 border-spdm-green text-spdm-green font-semibold rounded-full transition-all"
+                >
+                  Contact Support
+                </motion.button>
+              </motion.div>
+            </div>
+          </div>
           
           {/* CTA Section */}
           <div className="py-20 px-4 bg-gradient-to-b from-black to-spdm-dark">
@@ -265,80 +336,6 @@ const Index = ({
                   Join WhatsApp
                 </motion.button>
               </div>
-            </div>
-          </div>
-
-          {/* Payment Methods Section */}
-          <div className="py-20 px-4 bg-gradient-to-t from-black to-spdm-dark">
-            <div className="max-w-6xl mx-auto">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6 }}
-                className="text-center mb-12"
-              >
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 text-spdm-green glow-text">
-                  Payment Methods
-                </h2>
-                <p className="text-xl text-gray-300">
-                  Multiple secure payment options available
-                </p>
-              </motion.div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {paymentMethods.map((method, index) => (
-                  <motion.div
-                    key={method.name}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ scale: 1.03 }}
-                    className="bg-spdm-gray rounded-lg overflow-hidden border border-spdm-green/20 hover:border-spdm-green/50 transition-all"
-                  >
-                    <div className="h-48 overflow-hidden">
-                      <img 
-                        src={method.icon} 
-                        alt={method.name}
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold text-spdm-green mb-2">{method.name}</h3>
-                      <p className="text-gray-400 mb-4">{method.description}</p>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="w-full px-4 py-2 bg-spdm-green hover:bg-spdm-darkGreen text-black font-medium rounded-md transition-colors"
-                        onClick={() => window.open(method.link, '_blank')}
-                      >
-                        Pay with {method.name}
-                      </motion.button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="mt-12 text-center"
-              >
-                <p className="text-gray-400">
-                  Need help with payment? Contact our support team
-                </p>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => window.open('https://discord.gg/aJaKPWr42x', '_blank')}
-                  className="mt-4 px-8 py-3 bg-transparent hover:bg-spdm-green/10 border-2 border-spdm-green text-spdm-green font-semibold rounded-full transition-all"
-                >
-                  Contact Support
-                </motion.button>
-              </motion.div>
             </div>
           </div>
         </div>
