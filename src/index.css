@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,6 +93,11 @@
     @apply bg-spdm-black text-spdm-green;
     font-family: 'Poppins', sans-serif;
     overflow-x: hidden;
+    background-image: url('https://i.pinimg.com/originals/d4/60/eb/d460eb4ac63b9a2fbad07a83bc3ac7f6.gif');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -126,6 +130,11 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
+  }
+
+  .dashboard-bg {
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
   }
 }
 

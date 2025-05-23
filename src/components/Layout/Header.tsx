@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Menu, User, Users, ChevronDown, LogOut, Settings, Shield } from 'lucide-react';
 import SideMenu from './Menu';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -33,12 +34,13 @@ interface HeaderProps {
 }
 
 const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const isMobile = useIsMobile();
-  const { user, logout, updatePresence } = useAuth();
+  const { user, logout } = useAuth();
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -90,12 +92,6 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      updatePresence();
-    }
-  }, [user, updatePresence]);
 
   return (
     <header className="fixed top-0 left-0 w-full z-50 px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center bg-black bg-opacity-40 backdrop-blur-sm">
