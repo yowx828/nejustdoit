@@ -91,7 +91,7 @@ const Index = ({
     },
     {
       name: "Zelle",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Zelle_logo.svg/2560px-Zelle_logo.svg.png",
+      logo: "https://logodownload.org/wp-content/uploads/2022/03/zelle-logo-1.png",
       description: "Instant bank transfers (US only)"
     },
     {
@@ -101,7 +101,7 @@ const Index = ({
     },
     {
       name: "BBVA México",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/BBVA_Mexico_logo.svg/2560px-BBVA_Mexico_logo.svg.png",
+      logo: "https://brandemia.org/contenido/subidas/2019/04/logo-bbva-960x640.jpg",
       description: "Direct bank transfers in Mexico"
     },
     {
@@ -111,6 +111,7 @@ const Index = ({
     },
     {
       name: "Free Fire Account",
+      logo: "https://cdn.pixabay.com/photo/2021/08/31/18/28/garena-free-fire-6589783_1280.png",
       description: "Trade with Free Fire accounts"
     }
   ];
