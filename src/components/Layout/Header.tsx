@@ -53,11 +53,14 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
         
         if (activeUsersError) throw activeUsersError;
         
-        if (activeUsers && activeUsers.length > 0) {
+        if (Array.isArray(activeUsers) && activeUsers.length > 0) {
+          // Extract user_ids from the activeUsers array
+          const userIds = activeUsers.map(user => user.user_id);
+          
           const { data: profilesData, error: profilesError } = await supabase
             .from('profiles')
             .select('id, username')
-            .in('id', activeUsers);
+            .in('id', userIds);
           
           if (profilesError) throw profilesError;
 
