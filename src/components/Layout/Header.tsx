@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 interface OnlineUser {
-  id: string;
+  user_id: string;
   username: string;
   last_active: string;
   status: string;
@@ -57,13 +57,13 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
           const { data: profilesData, error: profilesError } = await supabase
             .from('profiles')
             .select('id, username')
-            .in('user_id', activeUsers);
+            .in('id', activeUsers);
           
           if (profilesError) throw profilesError;
 
           if (profilesData) {
             const formattedUsers = profilesData.map(item => ({
-              id: item.id,
+              user_id: item.id,
               username: item.username,
               last_active: new Date().toISOString(),
               status: 'online'
@@ -170,7 +170,7 @@ const Header = ({ onLoginClick, onSignupClick }: HeaderProps) => {
             <div className="space-y-2">
               {onlineUsers.length > 0 ? (
                 onlineUsers.map(user => (
-                  <div key={user.id} className="flex items-center gap-2">
+                  <div key={user.user_id} className="flex items-center gap-2">
                     <div className="h-2 w-2 rounded-full bg-green-500"></div>
                     <span className="text-sm text-gray-300">{user.username}</span>
                   </div>
