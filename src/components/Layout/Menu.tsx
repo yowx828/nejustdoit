@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, LogIn, UserPlus, Gift, ShoppingCart, RotateCw, Timer, Shield, Youtube } from 'lucide-react';
+import { X, LogIn, UserPlus, Gift, ShoppingCart, RotateCw, Timer, Shield, Youtube, Bug } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AuthModal from '../Auth/AuthModal';
 import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { supabase } from '@/integrations/supabase/client';
 
 // Define button animation variants
 const buttonVariants = {
@@ -32,8 +36,13 @@ interface SideMenuProps {
   onSignupClick?: () => void;
 }
 
+const BUG_REPORT_WEBHOOK = "https://discord.com/api/webhooks/1375252347579531387/KsQQ5AHhd7IdHJYblJdSSXOTdpvRTRnT21hEqJK1f04vD3uvSkNMQy4-7YGDH2GKuhP5";
+
 const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProps) => {
   const [authType, setAuthType] = useState<'login' | 'signup' | null>(null);
+  const [showBugReport, setShowBugReport] = useState(false);
+  const [bugDescription, setBugDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -77,6 +86,73 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
   const handleNavigate = (path: string) => {
     onClose();
     navigate(path);
+  };
+
+  const handleBugReport = async () => {
+    if (!user || !bugDescription.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('bug_reports')
+        .insert({
+          user_id: user.id,
+          message: bugDescription
+        });
+
+      if (dbError) throw dbError;
+
+      // Send to Discord webhook
+      const payload = {
+        username: "Bug Report Bot",
+        embeds: [{
+          title: "New Bug Report",
+          description: bugDescription,
+          color: 15158332, // Red
+          fields: [
+            {
+              name: "Reported by",
+              value: user.username,
+              inline: true
+            },
+            {
+              name: "User ID",
+              value: user.id,
+              inline: true
+            }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      };
+
+      const response = await fetch(BUG_REPORT_WEBHOOK, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error('Failed to send to Discord');
+
+      toast({
+        title: "Bug report submitted",
+        description: "Thank you for helping us improve!",
+      });
+
+      setBugDescription('');
+      setShowBugReport(false);
+    } catch (error) {
+      console.error('Error submitting bug report:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit bug report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -196,13 +272,26 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
                     <Timer className="mr-3 text-spdm-green" size={20} />
                     <span className="text-spdm-green group-hover:glow-text transition-all duration-200">AFK Farm</span>
                   </motion.button>
+
+                  <motion.button 
+                    onClick={() => setShowBugReport(true)}
+                    className="flex items-center p-3 rounded-md hover:bg-spdm-gray transition-all duration-200 border border-spdm-green/50 hover:border-spdm-green group"
+                    variants={buttonVariants}
+                    custom={4}
+                    initial="initial"
+                    animate="animate"
+                    whileTap="tap"
+                  >
+                    <Bug className="mr-3 text-spdm-green" size={20} />
+                    <span className="text-spdm-green group-hover:glow-text transition-all duration-200">Report Bug</span>
+                  </motion.button>
                   
                   {user.isOwner && (
                     <motion.button 
                       onClick={() => handleNavigate('/admin')}
                       className="flex items-center p-3 rounded-md hover:bg-spdm-gray transition-all duration-200 border border-spdm-green/50 hover:border-spdm-green group"
                       variants={buttonVariants}
-                      custom={4}
+                      custom={5}
                       initial="initial"
                       animate="animate"
                       whileTap="tap"
@@ -276,6 +365,41 @@ const SideMenu = ({ isOpen, onClose, onLoginClick, onSignupClick }: SideMenuProp
       {authType !== null && !onLoginClick && !onSignupClick && (
         <AuthModal isOpen={authType !== null} onClose={closeAuth} type={authType || 'login'} />
       )}
+
+      <Dialog open={showBugReport} onOpenChange={setShowBugReport}>
+        <DialogContent className="bg-spdm-dark border-spdm-green/20">
+          <DialogHeader>
+            <DialogTitle className="text-spdm-green">Report a Bug</DialogTitle>
+            <DialogDescription>
+              Describe the issue you've encountered and we'll look into it.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <Textarea
+              value={bugDescription}
+              onChange={(e) => setBugDescription(e.target.value)}
+              placeholder="Describe the bug in detail..."
+              className="h-32 bg-spdm-gray border-spdm-green/30"
+            />
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowBugReport(false)}
+                className="border-spdm-green text-spdm-green hover:bg-spdm-green/10"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleBugReport}
+                disabled={isSubmitting || !bugDescription.trim()}
+                className="bg-spdm-green hover:bg-spdm-darkGreen text-black"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit Report'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
